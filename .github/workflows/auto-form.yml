@@ -1,0 +1,30 @@
+name: Envio Experimento a cada 5min
+
+on:
+  schedule:
+    # A cada 5 minutos (em UTC)
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send-form:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Restaurar cookies (sessão Google)
+        run: |
+          mkdir -p sessions
+          echo "${{ secrets.GOOGLE_COOKIES }}" > sessions/cookies.json
+
+      - name: Executar envio do formulário
+        run: node autoForm.js
